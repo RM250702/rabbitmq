@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+  name: {{ template "rabbitmq-ha.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "rabbitmq-ha.name" . }}
+    chart: {{ template "rabbitmq-ha.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.rabbitmqManagerPort }}
+      targetPort: 15672
+    - name: amqps
+      protocol: TCP
+      port: 443      
+      targetPort: 5671
+    - name: amqp
+      protocol: TCP
+      port: 80
+      targetPort: 5672       
+  selector:
+    app: {{ template "rabbitmq-ha.name" . }}
+    release: {{ .Release.Name }}
+  type: {{ .Values.service.type }}
